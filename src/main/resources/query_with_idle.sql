@@ -27,6 +27,7 @@ SELECT
     application_name, 
     datname, 
     usename,
+    backend_type,
     CASE WHEN client_port=-1 THEN 'local pipe' 
          WHEN length(client_hostname)>0 THEN client_hostname||':'||client_port 
          ELSE textin(inet_out(client_addr))||':'||client_port 
@@ -39,8 +40,6 @@ SELECT
     state, 
     date_trunc('second', state_change) AS state_change, 
     blocks.pid AS blockedby, 
-    /* deprecated
-    null::text AS blocking_locks,*/ 
     blocks.locktype AS locktype, 
     blocks.relation AS relation,
     blocks.granted AS granted,

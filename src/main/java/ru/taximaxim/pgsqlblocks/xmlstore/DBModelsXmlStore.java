@@ -37,7 +37,6 @@ public class DBModelsXmlStore extends XmlStore<DBModel> {
     private static final String ELEMENT_DB_GROUP_NAME          = "dbgroup";
     private static final String ELEMENT_USER_TAG_NAME          = "user";
     private static final String ELEMENT_PASSWORD_TAG_NAME      = "passwd";
-    private static final String ELEMENT_READ_BACKEND_TAG_NAME  = "readbt";
     private static final String ELEMENT_ENABLED_TAG_NAME       = "enabled";
 
     public DBModelsXmlStore() {
@@ -59,7 +58,6 @@ public class DBModelsXmlStore extends XmlStore<DBModel> {
         Node dbGroupNode = element.getElementsByTagName(ELEMENT_DB_GROUP_NAME).item(0);
         Node userNode = element.getElementsByTagName(ELEMENT_USER_TAG_NAME).item(0);
         Node passwordNode = element.getElementsByTagName(ELEMENT_PASSWORD_TAG_NAME).item(0);
-        Node readBackendNode = element.getElementsByTagName(ELEMENT_READ_BACKEND_TAG_NAME).item(0);
         Node enabledNode = element.getElementsByTagName(ELEMENT_ENABLED_TAG_NAME).item(0);
 
         String name = getTextContentFromNode(nameNode);
@@ -69,10 +67,9 @@ public class DBModelsXmlStore extends XmlStore<DBModel> {
         String dbGroup = getTextContentFromNode(dbGroupNode);
         String user = getTextContentFromNode(userNode);
         String password = getTextContentFromNode(passwordNode);
-        boolean readBackend = readBackendNode != null && Boolean.parseBoolean(getTextContentFromNode(readBackendNode));
         boolean enabled = enabledNode != null && Boolean.parseBoolean(getTextContentFromNode(enabledNode));
 
-        return new DBModel(name, host, port, databaseName, dbGroup, user, password, readBackend, enabled);
+        return new DBModel(name, host, port, databaseName, dbGroup, user, password, enabled);
     }
 
     @Override
@@ -88,7 +85,6 @@ public class DBModelsXmlStore extends XmlStore<DBModel> {
             createSubElement(xml, rootElement, ELEMENT_DB_GROUP_NAME, model.getDbGroup());
             createSubElement(xml, rootElement, ELEMENT_USER_TAG_NAME, model.getUser());
             createSubElement(xml, rootElement, ELEMENT_PASSWORD_TAG_NAME, model.getPassword());
-            createSubElement(xml, rootElement, ELEMENT_READ_BACKEND_TAG_NAME, String.valueOf(model.isReadBackendType()));
             createSubElement(xml, rootElement, ELEMENT_ENABLED_TAG_NAME, String.valueOf(model.isEnabled()));
         }
     }
