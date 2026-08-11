@@ -43,9 +43,9 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Linux-64.jar
-            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Windows-64.jar
-            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Macosx-64.jar
+            ${{ github.workspace }}/target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Linux-64.jar
+            ${{ github.workspace }}/target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Windows-64.jar
+            ${{ github.workspace }}/target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Macosx-64.jar
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
