@@ -10,7 +10,7 @@ jobs:
     name: Build and Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Права на создание релиза
+      contents: write 
 
     steps:
       - name: Checkout code
@@ -41,33 +41,6 @@ jobs:
       - name: Rename macOS Artifact
         run: mv target/pgsqlblocks-*.jar target/pgsqlblocks-macos-x86_64.j
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: ${{ matrix.artifact-name }}
-          # Рекомендуется указывать точный путь к файлу сборки, если это возможно, 
-          # чтобы случайно не захватить лишние jar-ники (например, источники/документацию)
-          path: target/pgsqlblocks-*.jar
-          retention-days: 1
-
-  create-release:
-    name: Create Release
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Права на создание релиза и загрузку файлов
-
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v8.0.1
-        with:
-          # merge-multiple складывает все файлы из всех артефактов в одну папку 'release_files'
-          path: release_files
-          merge-multiple: true
-
-      - name: List artifacts
-        run: ls -la release_files/
-
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b #v.3.0.1
@@ -75,8 +48,10 @@ jobs:
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          # Теперь маска простая и гарантированно сработает
-          files: release_files/*.jar
+          files: |
+            target/pgsqlblocks-linux-x86_64.jar
+            target/pgsqlblocks-windows-x86_64.jar
+            target/pgsqlblocks-macos-x86_64.jar
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
