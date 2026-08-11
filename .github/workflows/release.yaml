@@ -6,21 +6,11 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            profile: Linux-64
-            artifact-name: pgsqlblocks-linux-x86_64
-          - os: windows-latest
-            profile: Windows-64
-            artifact-name: pgsqlblocks-windows-x86_64
-          - os: macos-latest
-            profile: Macosx-64
-            artifact-name: pgsqlblocks-macos-x86_64
+  build-and-release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Права на создание релиза
 
     steps:
       - name: Checkout code
@@ -33,8 +23,23 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn clean package -B -ntp -DskipTests -P ${{ matrix.profile }}
+      - name: Build Linux Version
+        run: mvn clean package -B -ntp -DskipTests -P Linux-64
+        
+      - name: Rename Linux Artifact
+        run: mv target/pgsqlblocks-*.jar target/pgsqlblocks-linux-x86_64.jar
+
+      - name: Build Windows Version
+        run: mvn clean package -B -ntp -DskipTests -P Windows-64
+        
+      - name: Rename Windows Artifact
+        run: mv target/pgsqlblocks-*.jar target/pgsqlblocks-windows-x86_64.jar
+
+      - name: Build macOS Version
+        run: mvn clean package -B -ntp -DskipTests -P Macosx-64
+        
+      - name: Rename macOS Artifact
+        run: mv target/pgsqlblocks-*.jar target/pgsqlblocks-macos-x86_64.j
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7.0.1
