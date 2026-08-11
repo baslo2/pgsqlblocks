@@ -23,35 +23,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Create artifacts directory
-        run: mkdir -p dist_artifacts
-
-      - name: Extract version from tag
-        id: get_version
-        run: |
-          TAG_NAME="${{ github.ref_name }}"
-          echo "VERSION=${TAG_NAME#v}" >> $GITHUB_ENV
+      - name: set version
+        run: echo "RELEASE_VERSION=$(echo ${GITHUB_REF#refs/*/} | cut -c 2-)" >> $GITHUB_ENV
 
       - name: Build Linux Version
-        run: mvn clean package -B -P Linux-64
-
-      - name: Save Linux Artifact
-        run: cp target/pgsqlblocks-${{ env.VERSION }}-Linux-64.jar dist_artifacts/
+        run: mvn clean package -B -ntp -DskipTests -P Linux-64
 
       - name: Build Windows Version
-        run: mvn clean package -B -P Windows-64 -DskipTests
-
-      - name: Save Windows Artifact
-        run: cp target/pgsqlblocks-${{ env.VERSION }}-Windows-64.jar dist_artifacts/
+        run: mvn package -B -ntp -DskipTests -P Windows-64
 
       - name: Build macOS Version
-        run: mvn clean package -B -P Macosx-64 -DskipTests
-
-      - name: Save macOS Artifact
-        run: cp target/pgsqlblocks-${{ env.VERSION }}-Macosx-64.jar dist_artifacts/
-
-      - name: List Ready Artifacts
-        run: ls -la dist_artifacts/
+        run: mvn package -B -ntp -DskipTests -P Macosx-64
 
       - name: Create Release
         id: create_release
@@ -60,7 +42,10 @@ jobs:
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
-          files: dist_artifacts/*.jar
+          files: |
+            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Linux-64.jar
+            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Windows-64.jar
+            target/pgsqlblocks-${{ env.RELEASE_VERSION }}-Macosx-64.jar
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
