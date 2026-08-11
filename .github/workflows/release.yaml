@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            profile: Linux-64
+            artifact-name: pgsqlblocks-linux-x86_64
+          - os: windows-latest
+            profile: Windows-64
+            artifact-name: pgsqlblocks-windows-x86_64
+          - os: macos-latest
+            profile: Macosx-64
+            artifact-name: pgsqlblocks-macos-x86_64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v5
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn clean package -B -ntp -P ${{ matrix.profile }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ${{ matrix.artifact-name }}
+          # Рекомендуется указывать точный путь к файлу сборки, если это возможно, 
+          # чтобы случайно не захватить лишние jar-ники (например, источники/документацию)
+          path: target/pgsqlblocks-*.jar
+          retention-days: 1
+
+  create-release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Права на создание релиза и загрузку файлов
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8.0.1
+        with:
+          # merge-multiple складывает все файлы из всех артефактов в одну папку 'release_files'
+          path: release_files
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -la release_files/
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b #v.3.0.1
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          # Теперь маска простая и гарантированно сработает
+          files: release_files/*.jar
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
