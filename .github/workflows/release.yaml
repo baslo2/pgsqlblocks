@@ -1,9 +1,7 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  push
 
 jobs:
   build-and-release:
@@ -34,6 +32,9 @@ jobs:
 
       - name: Build macOS Version
         run: mvn package -B -ntp -DskipTests -P Macosx-64
+
+      - name: test
+        run: ls
 
       - name: Create Release
         id: create_release
