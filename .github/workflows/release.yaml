@@ -44,14 +44,12 @@ jobs:
       - name: Save Windows Artifact
         run: cp target/pgsqlblocks-${{ env.VERSION }}-Windows-64.jar dist_artifacts/
 
-      # Сборка macOS
       - name: Build macOS Version
         run: mvn clean package -B -P Macosx-64 -DskipTests
 
       - name: Save macOS Artifact
         run: cp target/pgsqlblocks-${{ env.VERSION }}-Macosx-64.jar dist_artifacts/
 
-      # Проверка собранных файлов в логах (для отладки)
       - name: List Ready Artifacts
         run: ls -la dist_artifacts/
 
